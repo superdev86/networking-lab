@@ -172,6 +172,8 @@ validate_inc_4524() {
         --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\`].IpRanges[].CidrIp" --output text 2>/dev/null)
     local BASTION_SSH_SG_SOURCES=$(aws ec2 describe-security-groups --group-ids "$BASTION_SG_ID" \
         --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\`].UserIdGroupPairs[].GroupId" --output text 2>/dev/null)
+    BASTION_SSH_CIDRS=$(printf '%s' "$BASTION_SSH_CIDRS" | tr -d '\r')
+    BASTION_SSH_SG_SOURCES=$(printf '%s' "$BASTION_SSH_SG_SOURCES" | tr -d '\r')
 
     if [ -z "$BASTION_SSH_CIDRS" ] || [ -n "$BASTION_SSH_SG_SOURCES" ] || echo "$BASTION_SSH_CIDRS" | grep -q "0.0.0.0/0"; then
         ALL_PASS=false
@@ -183,6 +185,8 @@ validate_inc_4524() {
             --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\`].IpRanges[].CidrIp" --output text 2>/dev/null)
         local SSH_SG_SOURCES=$(aws ec2 describe-security-groups --group-ids "$SG_ID" \
             --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\`].UserIdGroupPairs[].GroupId" --output text 2>/dev/null)
+        SSH_CIDRS=$(printf '%s' "$SSH_CIDRS" | tr -d '\r')
+        SSH_SG_SOURCES=$(printf '%s' "$SSH_SG_SOURCES" | tr -d '\r')
 
         if [ -n "$SSH_CIDRS" ] || [ -z "$SSH_SG_SOURCES" ]; then
             ALL_PASS=false
@@ -204,6 +208,9 @@ validate_inc_4524() {
         --query "SecurityGroups[0].IpPermissions[?IpProtocol=='tcp' && FromPort==\`5432\` && ToPort==\`5432\`].UserIdGroupPairs[].GroupId" --output text 2>/dev/null)
     local DB_WIDE_RULES=$(aws ec2 describe-security-groups --group-ids "$DB_SG_ID" \
         --query "SecurityGroups[0].IpPermissions[?IpProtocol=='tcp' && FromPort<=\`5432\` && ToPort>=\`5432\` && (FromPort!=\`5432\` || ToPort!=\`5432\`)]" --output text 2>/dev/null)
+    DB_CIDRS=$(printf '%s' "$DB_CIDRS" | tr -d '\r')
+    DB_SG_SOURCES=$(printf '%s' "$DB_SG_SOURCES" | tr -d '\r')
+    DB_WIDE_RULES=$(printf '%s' "$DB_WIDE_RULES" | tr -d '\r')
 
     if [ -n "$DB_WIDE_RULES" ]; then
         ALL_PASS=false
@@ -226,6 +233,8 @@ validate_inc_4524() {
         --query "SecurityGroups[0].IpPermissions[?IpProtocol==\`icmp\`].IpRanges[].CidrIp" --output text 2>/dev/null)
     local ICMP_SG_SOURCES=$(aws ec2 describe-security-groups --group-ids "$WEB_SG_ID" \
         --query "SecurityGroups[0].IpPermissions[?IpProtocol==\`icmp\`].UserIdGroupPairs[].GroupId" --output text 2>/dev/null)
+    ICMP_CIDRS=$(printf '%s' "$ICMP_CIDRS" | tr -d '\r')
+    ICMP_SG_SOURCES=$(printf '%s' "$ICMP_SG_SOURCES" | tr -d '\r')
 
     if [ -n "$ICMP_CIDRS" ] || [ -z "$ICMP_SG_SOURCES" ]; then
         ALL_PASS=false
