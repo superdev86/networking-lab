@@ -201,8 +201,8 @@ validate_inc_4524() {
     local SSH_WORLD=0
     for RULE in "allow-ssh-bastion-${DEPLOYMENT_ID}" "allow-ssh-web-${DEPLOYMENT_ID}" "allow-ssh-api-${DEPLOYMENT_ID}" "allow-ssh-db-${DEPLOYMENT_ID}"; do
         local SSH_SOURCE
-        SSH_SOURCE=$(gcloud compute firewall-rules describe "$RULE" \
-            --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "*")
+        SSH_SOURCE=$( (gcloud compute firewall-rules describe "$RULE" \
+            --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "*") | tr -d '\r')
         if echo "$SSH_SOURCE" | grep -q "0.0.0.0/0"; then
             SSH_WORLD=1
         fi
@@ -214,8 +214,8 @@ validate_inc_4524() {
 
     # Check 2: Database source restriction
     local PG_SOURCE
-    PG_SOURCE=$(gcloud compute firewall-rules describe "allow-postgres-${DEPLOYMENT_ID}" \
-        --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "")
+    PG_SOURCE=$( (gcloud compute firewall-rules describe "allow-postgres-${DEPLOYMENT_ID}" \
+        --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "") | tr -d '\r')
 
     if ! echo "$PG_SOURCE" | grep -q "10.0.2.0/24"; then
         ALL_PASS=false
@@ -223,8 +223,8 @@ validate_inc_4524() {
 
     # Check 3: ICMP restriction
     local ICMP_SOURCE
-    ICMP_SOURCE=$(gcloud compute firewall-rules describe "allow-icmp-${DEPLOYMENT_ID}" \
-        --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "*")
+    ICMP_SOURCE=$( (gcloud compute firewall-rules describe "allow-icmp-${DEPLOYMENT_ID}" \
+        --project "$PROJECT_ID" --format="value(sourceRanges)" 2>/dev/null || echo "*") | tr -d '\r')
 
     if echo "$ICMP_SOURCE" | grep -q "0.0.0.0/0"; then
         ALL_PASS=false
