@@ -81,7 +81,7 @@ dig google.com → OK
 ### DNS Resolver Check
 
 
-resolvectl status
+```resolvectl status```
 
 
 - VPC resolver (10.0.0.2) working
@@ -102,7 +102,7 @@ Added correct A records:
 Validation:
 
 
-dig api.internal.local → OK
+```dig api.internal.local``` → OK
 
 
 ## Key Learnings
